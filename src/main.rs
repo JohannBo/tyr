@@ -20,10 +20,10 @@ fn main() {
                 break;
             }
             "1" => {
-                println!("reading...")
+                println!("reading...");
             }
             "2" => {
-                println!("writing...")
+                println!("writing...");
                 if let Err(err) = tyr::write_csv() {
                     println!("Error: {}", err);
                 }
@@ -35,7 +35,7 @@ fn main() {
                 println!("2: write");
             }
             _ => {
-                println!("invalid input.")
+                println!("invalid input.");
             }
         }
     }
