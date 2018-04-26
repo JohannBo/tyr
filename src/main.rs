@@ -7,10 +7,7 @@ fn main() {
     println!("Running Tyr!");
 
     loop {
-        println!("input command.");
-        println!("1: read");
-        println!("2; write");
-        println!("0: exit");
+        println!("input command. type \"h\" for list of commands.");
 
         let mut command = String::new();
 
@@ -30,6 +27,12 @@ fn main() {
                 if let Err(err) = tyr::write_csv() {
                     println!("Error: {}", err);
                 }
+            }
+            "h" => {
+                println!("commands:");
+                println!("0: exit");
+                println!("1: read");
+                println!("2: write");
             }
             _ => {
                 println!("invalid input.")
