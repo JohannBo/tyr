@@ -12,6 +12,17 @@ pub struct Record {
     stop: Option<String>,
 }
 
+pub fn read_csv() -> Result<()> {
+
+    let file_buffer = File::open("/tmp/tyr_test.csv")?;
+    let mut reader = csv::Reader::from_reader(file_buffer);
+    for result in reader.deserialize() {
+        let record: Record = result?;
+        println!("{:?}", record);
+    }
+    Ok(())
+}
+
 pub fn write_csv() -> Result<()> {
 
     let file_buffer = File::create("/tmp/tyr_test.csv")?;
