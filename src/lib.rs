@@ -4,8 +4,9 @@ extern crate csv;
 extern crate serde_derive;
 
 use chrono::prelude::*;
-use csv::Result;
 use std::fs::File;
+use std::fs::OpenOptions;
+use std::io;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
@@ -14,19 +15,31 @@ pub struct Record {
     stop: Option<DateTime<Utc>>,
 }
 
-pub fn read_csv() -> Result<()> {
+fn read_csv() -> Result<Vec<Record>, io::Error> {
     let file_buffer = File::open("/tmp/tyr_test.csv")?;
-    let mut reader = csv::Reader::from_reader(file_buffer);
-    for result in reader.deserialize() {
-        let record: Record = result?;
-        println!("{:?}", record);
+    let mut rd = csv::ReaderBuilder::new().has_headers(false).from_reader(file_buffer);
+
+    let mut result = Vec::new();
+
+    for record in rd.deserialize() {
+        let record: Record = record?;
+        result.push(record);
     }
+    Ok(result)
+}
+
+pub fn print_records() -> Result<(), io::Error> {
+    let records = read_csv();
+    let records = records?;
+    println!("{:?}", records);
     Ok(())
 }
 
-pub fn write_csv() -> Result<()> {
-    let file_buffer = File::create("/tmp/tyr_test.csv")?;
-    let mut wtr = csv::Writer::from_writer(file_buffer);
+pub fn write_csv() -> Result<(), io::Error> {
+    let path = "/tmp/tyr_test.csv";
+    let file_buffer = OpenOptions::new().append(true).create(true).open(&path)?;
+
+    let mut wtr = csv::WriterBuilder::new().has_headers(false).from_writer(file_buffer);
 
     let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
     let stop = Utc::now();

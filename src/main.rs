@@ -17,7 +17,7 @@ fn main() {
             "0" => break,
             "1" => {
                 println!("reading...");
-                if let Err(err) = tyr::read_csv() {
+                if let Err(err) = tyr::print_records() {
                     println!("Error: {}", err);
                 }
             }
