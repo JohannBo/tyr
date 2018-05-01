@@ -28,6 +28,15 @@ fn read_csv() -> Result<Vec<Record>, io::Error> {
     Ok(result)
 }
 
+fn append_record(record: &Record) -> Result<(), io::Error> {
+    let path = "/tmp/tyr_test.csv";
+    let file_buffer = OpenOptions::new().append(true).create(true).open(&path)?;
+    let mut wtr = csv::WriterBuilder::new().has_headers(false).from_writer(file_buffer);
+    wtr.serialize(record)?;
+    wtr.flush()?;
+    Ok(())
+}
+
 pub fn print_records() -> Result<(), io::Error> {
     let records = read_csv();
     let records = records?;
@@ -36,10 +45,6 @@ pub fn print_records() -> Result<(), io::Error> {
 }
 
 pub fn write_csv() -> Result<(), io::Error> {
-    let path = "/tmp/tyr_test.csv";
-    let file_buffer = OpenOptions::new().append(true).create(true).open(&path)?;
-
-    let mut wtr = csv::WriterBuilder::new().has_headers(false).from_writer(file_buffer);
 
     let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
     let stop = Utc::now();
@@ -57,11 +62,8 @@ pub fn write_csv() -> Result<(), io::Error> {
         start: start,
         stop: Some(stop),
     };
-
-    wtr.serialize(&record_1)?;
-    wtr.serialize(&record_2)?;
-
-    wtr.flush()?;
+    append_record(&record_1)?;
+    append_record(&record_2)?;
 
     Ok(())
 }
