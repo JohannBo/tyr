@@ -5,8 +5,8 @@ extern crate serde_derive;
 
 use chrono::prelude::*;
 use std::fs::File;
-use std::fs::OpenOptions;
 use std::io;
+use std::io::ErrorKind;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
@@ -15,9 +15,9 @@ pub struct Record {
     stop: Option<DateTime<Utc>>,
 }
 
-fn read_csv() -> Result<Vec<Record>, io::Error> {
+fn read_records() -> Result<Vec<Record>, io::Error> {
     let file_buffer = File::open("/tmp/tyr_test.csv")?;
-    let mut rd = csv::ReaderBuilder::new().has_headers(false).from_reader(file_buffer);
+    let mut rd = csv::Reader::from_reader(file_buffer);
 
     let mut result = Vec::new();
 
@@ -28,17 +28,33 @@ fn read_csv() -> Result<Vec<Record>, io::Error> {
     Ok(result)
 }
 
-fn append_record(record: &Record) -> Result<(), io::Error> {
+fn write_records(records :Vec<Record>) -> Result<(), io::Error> {
+    println!("write_records()");
     let path = "/tmp/tyr_test.csv";
-    let file_buffer = OpenOptions::new().append(true).create(true).open(&path)?;
-    let mut wtr = csv::WriterBuilder::new().has_headers(false).from_writer(file_buffer);
-    wtr.serialize(record)?;
+    let file_buffer = File::create(&path)?;
+    println!("create writer");
+    let mut wtr = csv::Writer::from_writer(file_buffer);
+    for record in records {
+        wtr.serialize(record)?;
+    }
     wtr.flush()?;
     Ok(())
 }
 
+fn append_record(record: Record) -> Result<(), io::Error> {
+    let records = read_records();
+    let mut records = match records {
+        Ok(r) => r,
+        Err(ref error) if error.kind() == ErrorKind::NotFound => Vec::new(),
+        Err(e) => return Err(e),
+    };
+    records.push(record);
+    write_records(records)?;
+    Ok(())
+}
+
 pub fn print_records() -> Result<(), io::Error> {
-    let records = read_csv();
+    let records = read_records();
     let records = records?;
     println!("{:?}", records);
     Ok(())
@@ -62,8 +78,8 @@ pub fn write_csv() -> Result<(), io::Error> {
         start: start,
         stop: Some(stop),
     };
-    append_record(&record_1)?;
-    append_record(&record_2)?;
+    append_record(record_1)?;
+    append_record(record_2)?;
 
     Ok(())
 }
