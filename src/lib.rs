@@ -1,12 +1,15 @@
 extern crate chrono;
+extern crate config;
 extern crate csv;
 #[macro_use]
 extern crate serde_derive;
 
-use chrono::prelude::*;
 use std::fs::File;
 use std::io;
 use std::io::ErrorKind;
+
+use chrono::prelude::*;
+use config::ConfigError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
@@ -16,7 +19,8 @@ pub struct Record {
 }
 
 fn read_records() -> Result<Vec<Record>, io::Error> {
-    let file_buffer = File::open("/tmp/tyr_test.csv")?;
+    let path = get_path().unwrap();
+    let file_buffer = File::open(path)?;
     let mut rd = csv::Reader::from_reader(file_buffer);
 
     let mut result = Vec::new();
@@ -28,9 +32,9 @@ fn read_records() -> Result<Vec<Record>, io::Error> {
     Ok(result)
 }
 
-fn write_records(records :Vec<Record>) -> Result<(), io::Error> {
+fn write_records(records: Vec<Record>) -> Result<(), io::Error> {
     println!("write_records()");
-    let path = "/tmp/tyr_test.csv";
+    let path = get_path().unwrap();
     let file_buffer = File::create(&path)?;
     println!("create writer");
     let mut wtr = csv::Writer::from_writer(file_buffer);
@@ -69,13 +73,13 @@ pub fn write_csv() -> Result<(), io::Error> {
 
     let record_1 = Record {
         title: "Ticket:1234,blah".to_string(),
-        start: start,
+        start,
         stop: None,
     };
 
     let record_2 = Record {
         title: "Ticket:1234".to_string(),
-        start: start,
+        start,
         stop: Some(stop),
     };
     append_record(record_1)?;
@@ -83,6 +87,13 @@ pub fn write_csv() -> Result<(), io::Error> {
 
     Ok(())
 }
+
+fn get_path() -> Result<String, ConfigError> {
+    let mut settings = config::Config::default();
+    settings.merge(config::File::with_name("Settings")).unwrap();
+    settings.get("path")
+}
+
 
 #[cfg(test)]
 mod tests {
