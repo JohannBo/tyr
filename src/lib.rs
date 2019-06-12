@@ -81,9 +81,6 @@ fn append_record(record: Record) -> Result<(), TyrError> {
             IoError(ref e) if e.kind() == ErrorKind::NotFound => Vec::new(),
             _ => return Err(my_error)
         }
-
-//        Err(ref error) if error.kind() == ErrorKind::NotFound => Vec::new(),
-//        Err(e) => return Err(e),
     };
     records.push(record);
     write_records(records)?;
