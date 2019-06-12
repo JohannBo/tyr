@@ -10,7 +10,8 @@ use std::io::ErrorKind;
 
 use chrono::prelude::*;
 use config::ConfigError;
-use ::MyError::IoError;
+
+use ::TyrError::IoError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
@@ -20,32 +21,32 @@ pub struct Record {
 }
 
 #[derive(Debug)]
-pub enum MyError {
+pub enum TyrError {
     IoError(io::Error),
     ConfigError(ConfigError),
     CsvError(csv::Error),
 }
 
-impl From<io::Error> for MyError {
-    fn from(err: io::Error) -> MyError {
-        MyError::IoError(err)
+impl From<io::Error> for TyrError {
+    fn from(err: io::Error) -> TyrError {
+        TyrError::IoError(err)
     }
 }
 
-impl From<ConfigError> for MyError {
-    fn from(err: ConfigError) -> MyError {
-        MyError::ConfigError(err)
+impl From<ConfigError> for TyrError {
+    fn from(err: ConfigError) -> TyrError {
+        TyrError::ConfigError(err)
     }
 }
 
-impl From<csv::Error> for MyError {
+impl From<csv::Error> for TyrError {
     fn from(err: csv::Error) -> Self {
-        MyError::CsvError(err)
+        TyrError::CsvError(err)
     }
 }
 
 
-fn read_records() -> Result<Vec<Record>, MyError> {
+fn read_records() -> Result<Vec<Record>, TyrError> {
     let path = get_path().unwrap();
     let file_buffer = File::open(path)?;
     let mut rd = csv::Reader::from_reader(file_buffer);
@@ -59,7 +60,7 @@ fn read_records() -> Result<Vec<Record>, MyError> {
     Ok(result)
 }
 
-fn write_records(records: Vec<Record>) -> Result<(), MyError> {
+fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
     println!("write_records()");
     let path = get_path().unwrap();
     let file_buffer = File::create(&path)?;
@@ -72,7 +73,7 @@ fn write_records(records: Vec<Record>) -> Result<(), MyError> {
     Ok(())
 }
 
-fn append_record(record: Record) -> Result<(), MyError> {
+fn append_record(record: Record) -> Result<(), TyrError> {
     let records = read_records();
     let mut records = match records {
         Ok(r) => r,
@@ -89,14 +90,14 @@ fn append_record(record: Record) -> Result<(), MyError> {
     Ok(())
 }
 
-pub fn print_records() -> Result<(), MyError> {
+pub fn print_records() -> Result<(), TyrError> {
     let records = read_records();
     let records = records?;
     println!("{:?}", records);
     Ok(())
 }
 
-pub fn write_csv() -> Result<(), MyError> {
+pub fn write_csv() -> Result<(), TyrError> {
 
     let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
     let stop = Utc::now();
