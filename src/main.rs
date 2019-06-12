@@ -1,8 +1,11 @@
 extern crate tyr;
+extern crate chrono;
 
 use std::io;
 use std::string::String;
+
 use tyr::TyrError;
+use chrono::Utc;
 
 fn main() {
     println!("Running Tyr!");
@@ -20,7 +23,9 @@ fn main() {
                 print_records()
             }
             "2" => {
-                start_working()
+                if let Err(err) = start_working() {
+                    handle_error(err)
+                }
             }
             "3" => {
                 stop_working()
@@ -39,13 +44,26 @@ fn main() {
 fn print_records() {
     println!("print records");
     if let Err(err) = tyr::print_records() {
-        handle_error(err);
+        handle_error(err)
     }
 }
 
-fn start_working() {
+fn start_working() -> Result<(), TyrError>{
     println!("start working");
+
+    let latest = tyr::get_latest_record()?;
+    match latest {
+        Some(r) => {
+            let time = Utc::now();
+            tyr::stop_progress(time);
+        },
+        _ => ()
+    }
+
     // TODO
+
+
+    Ok(())
 }
 
 fn stop_working() {

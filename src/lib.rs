@@ -132,6 +132,16 @@ pub fn write_demo_records() -> Result<(), TyrError> {
     Ok(())
 }
 
+pub fn get_latest_record() -> Result<Option<Record>, TyrError> {
+    let mut records = read_records()?;
+    Ok(records.pop())
+}
+
+pub fn stop_progress(stop_time: DateTime<Utc>) -> Result<(), TyrError> {
+    //TODO
+    Ok(())
+}
+
 fn get_path() -> Result<String, ConfigError> {
     let mut settings = config::Config::default();
     settings.merge(config::File::with_name("Settings")).unwrap();
