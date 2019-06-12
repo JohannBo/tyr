@@ -18,13 +18,13 @@ fn main() {
             "1" => {
                 println!("reading...");
                 if let Err(err) = tyr::print_records() {
-                    println!("Error: {}", err);
+                    println!("Error: {:?}", err);
                 }
             }
             "2" => {
                 println!("writing...");
                 if let Err(err) = tyr::write_csv() {
-                    println!("Error: {}", err);
+                    println!("Error: {:?}", err);
                 }
             }
             "h" => {
