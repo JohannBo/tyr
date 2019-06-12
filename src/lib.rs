@@ -92,7 +92,7 @@ pub fn print_records() -> Result<(), TyrError> {
     Ok(())
 }
 
-pub fn write_csv() -> Result<(), TyrError> {
+pub fn write_demo_records() -> Result<(), TyrError> {
 
 //    let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
 //    let stop = Utc::now();
