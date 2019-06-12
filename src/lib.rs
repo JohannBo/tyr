@@ -61,10 +61,8 @@ fn read_records() -> Result<Vec<Record>, TyrError> {
 }
 
 fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
-    println!("write_records()");
     let path = get_path().unwrap();
     let file_buffer = File::create(&path)?;
-    println!("create writer");
     let mut wtr = csv::Writer::from_writer(file_buffer);
     for record in records {
         wtr.serialize(record)?;
@@ -96,24 +94,38 @@ pub fn print_records() -> Result<(), TyrError> {
 
 pub fn write_csv() -> Result<(), TyrError> {
 
-    let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
-    let stop = Utc::now();
-    let stop = stop.with_second(0).unwrap();
-    let stop = stop.with_nanosecond(0).unwrap();
+//    let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
+//    let stop = Utc::now();
+//    let stop = stop.with_second(0).unwrap();
+//    let stop = stop.with_nanosecond(0).unwrap();
 
+
+    let start = Utc.ymd(2018, 4, 27).and_hms(10, 0, 0);
+    let stop = Utc.ymd(2018, 4, 27).and_hms(11, 0, 0);
     let record_1 = Record {
-        title: "Ticket:1234,blah".to_string(),
+        title: "Ticket-1234: do things".to_string(),
         start,
-        stop: None,
+        stop: Some(stop),
     };
 
+    let start = Utc.ymd(2018, 4, 27).and_hms(11, 0, 0);
+    let stop = Utc.ymd(2018, 4, 27).and_hms(12, 0, 0);
     let record_2 = Record {
-        title: "Ticket:1234".to_string(),
+        title: "Ticket-4321: do other things".to_string(),
+        start,
+        stop: Some(stop),
+    };
+
+    let start = Utc.ymd(2018, 4, 27).and_hms(12, 0, 0);
+    let stop = Utc.ymd(2018, 4, 27).and_hms(13, 0, 0);
+    let record_3 = Record {
+        title: "Ticket-1234: do things".to_string(),
         start,
         stop: Some(stop),
     };
     append_record(record_1)?;
     append_record(record_2)?;
+    append_record(record_3)?;
 
     Ok(())
 }
