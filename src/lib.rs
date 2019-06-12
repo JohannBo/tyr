@@ -88,7 +88,9 @@ fn append_record(record: Record) -> Result<(), TyrError> {
 pub fn print_records() -> Result<(), TyrError> {
     let records = read_records();
     let records = records?;
-    println!("{:?}", records);
+    for record in records {
+        println!("{:?}", record)
+    }
     Ok(())
 }
 
