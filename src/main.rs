@@ -58,13 +58,7 @@ fn start_working() -> Result<(), TyrError> {
     trace!("start_working()");
 
     let time = Utc::now();
-    match tyr::get_latest_record()? {
-        Some(_) => {
-            tyr::stop_progress(time);
-        }
-        None => ()
-    }
-    tyr::start_progress(time)?;
+    tyr::start_progress(time, "Foobar".to_string())?;
     Ok(())
 }
 

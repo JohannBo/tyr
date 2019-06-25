@@ -1,8 +1,10 @@
 extern crate chrono;
 extern crate config;
 extern crate csv;
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate serde_derive;
 
 use std::fs::File;
 use std::io;
@@ -62,7 +64,7 @@ fn read_records() -> Result<Vec<Record>, TyrError> {
 }
 
 fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
-    trace!("write_records()");
+    trace!("write_records({:?})", records);
     let path = get_path().unwrap();
     let file_buffer = File::create(&path)?;
     let mut wtr = csv::Writer::from_writer(file_buffer);
@@ -74,7 +76,7 @@ fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
 }
 
 fn append_record(record: Record) -> Result<(), TyrError> {
-    trace!("append_records()");
+    trace!("append_records({:?})", record);
     let records = read_records();
     let mut records = match records {
         Ok(r) => r,
@@ -137,21 +139,50 @@ pub fn write_demo_records() -> Result<(), TyrError> {
     Ok(())
 }
 
-pub fn get_latest_record() -> Result<Option<Record>, TyrError> {
+pub fn get_latest_record() -> Option<Record> {
     trace!("get_latest_record()");
-    let mut records = read_records()?;
-    Ok(records.pop())
+    let records = read_records();
+    match records {
+        Ok(mut records) => {records.pop()},
+        Err(_) => {None},
+    }
 }
 
-pub fn start_progress(ref start_time: DateTime<Utc>) -> Result<(), TyrError> {
-    trace!("start_progress({})", start_time);
-    //TODO
+pub fn start_progress(ref start: DateTime<Utc>, title: String) -> Result<(), TyrError> {
+    trace!("start_progress({})", start);
+    if get_latest_record().is_some() {
+        stop_progress(*start)?;
+    }
+
+    let new_record = Record {
+        title,
+        start: *start,
+        stop: None,
+    };
+    debug!("new record: {:?}", new_record);
+    append_record(new_record)?;
     Ok(())
 }
 
 pub fn stop_progress(ref stop_time: DateTime<Utc>) -> Result<bool, TyrError> {
     trace!("stop_progress({})", stop_time);
-    //TODO
+    let mut records = read_records()?;
+    let tail = match records.pop() {
+        Some(x) => x,
+        None => { return Ok(false); }
+    };
+    trace!("last record: {:?}", tail);
+    if tail.stop.is_none() {
+        let new_record = Record {
+            title: tail.title,
+            start: tail.start,
+            stop: Some(*stop_time),
+        };
+        let mut new_record = vec![new_record];
+        debug!("write stop time to record: {:?}", new_record);
+        records.append(&mut new_record);
+        write_records(records)?;
+    }
     Ok(true)
 }
 
