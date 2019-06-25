@@ -1,7 +1,8 @@
 extern crate chrono;
-extern crate tyr;
-#[macro_use] extern crate log;
 extern crate env_logger;
+#[macro_use]
+extern crate log;
+extern crate tyr;
 
 use std::io;
 use std::string::String;
@@ -17,9 +18,7 @@ fn main() {
     loop {
         println!("Enter command. Type \"h\" for list of commands.");
 
-        let mut command = String::new();
-        io::stdin().read_line(&mut command).expect("Failed to read line!");
-        let command = command.trim();
+        let command = read_input();
 
         match command.as_ref() {
             "q" => break,
@@ -47,6 +46,12 @@ fn main() {
     }
 }
 
+fn read_input() -> String {
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read line!");
+    input.trim().to_string()
+}
+
 fn print_records() {
     trace!("print_records()");
     if let Err(err) = tyr::print_records() {
@@ -58,7 +63,9 @@ fn start_working() -> Result<(), TyrError> {
     trace!("start_working()");
 
     let time = Utc::now();
-    tyr::start_progress(time, "Foobar".to_string())?;
+    println!("What are you working on?");
+    let title = read_input();
+    tyr::start_progress(time, title)?;
     Ok(())
 }
 
