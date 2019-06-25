@@ -1,8 +1,8 @@
 extern crate chrono;
 extern crate config;
 extern crate csv;
-#[macro_use]
-extern crate serde_derive;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate log;
 
 use std::fs::File;
 use std::io;
@@ -47,6 +47,7 @@ impl From<csv::Error> for TyrError {
 
 
 fn read_records() -> Result<Vec<Record>, TyrError> {
+    trace!("read_records()");
     let path = get_path().unwrap();
     let file_buffer = File::open(path)?;
     let mut rd = csv::Reader::from_reader(file_buffer);
@@ -61,6 +62,7 @@ fn read_records() -> Result<Vec<Record>, TyrError> {
 }
 
 fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
+    trace!("write_records()");
     let path = get_path().unwrap();
     let file_buffer = File::create(&path)?;
     let mut wtr = csv::Writer::from_writer(file_buffer);
@@ -72,6 +74,7 @@ fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
 }
 
 fn append_record(record: Record) -> Result<(), TyrError> {
+    trace!("append_records()");
     let records = read_records();
     let mut records = match records {
         Ok(r) => r,
@@ -86,6 +89,7 @@ fn append_record(record: Record) -> Result<(), TyrError> {
 }
 
 pub fn print_records() -> Result<(), TyrError> {
+    trace!("print_records()");
     let records = read_records();
     let records = records?;
     for record in records {
@@ -95,6 +99,7 @@ pub fn print_records() -> Result<(), TyrError> {
 }
 
 pub fn write_demo_records() -> Result<(), TyrError> {
+    trace!("write_demo_records()");
 
 //    let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
 //    let stop = Utc::now();
@@ -133,16 +138,25 @@ pub fn write_demo_records() -> Result<(), TyrError> {
 }
 
 pub fn get_latest_record() -> Result<Option<Record>, TyrError> {
+    trace!("get_latest_record()");
     let mut records = read_records()?;
     Ok(records.pop())
 }
 
-pub fn stop_progress(stop_time: DateTime<Utc>) -> Result<(), TyrError> {
+pub fn start_progress(ref start_time: DateTime<Utc>) -> Result<(), TyrError> {
+    trace!("start_progress({})", start_time);
     //TODO
     Ok(())
 }
 
+pub fn stop_progress(ref stop_time: DateTime<Utc>) -> Result<bool, TyrError> {
+    trace!("stop_progress({})", stop_time);
+    //TODO
+    Ok(true)
+}
+
 fn get_path() -> Result<String, ConfigError> {
+    trace!("get_path()");
     let mut settings = config::Config::default();
     settings.merge(config::File::with_name("Settings")).unwrap();
     settings.get("path")

@@ -1,17 +1,21 @@
-extern crate tyr;
 extern crate chrono;
+extern crate tyr;
+#[macro_use] extern crate log;
+extern crate env_logger;
 
 use std::io;
 use std::string::String;
 
-use tyr::TyrError;
 use chrono::Utc;
+
+use tyr::TyrError;
 
 fn main() {
     println!("Running Tyr!");
+    env_logger::init();
 
     loop {
-        println!("input command. type \"h\" for list of commands.");
+        println!("Enter command. Type \"h\" for list of commands.");
 
         let mut command = String::new();
         io::stdin().read_line(&mut command).expect("Failed to read line!");
@@ -28,7 +32,9 @@ fn main() {
                 }
             }
             "3" => {
-                stop_working()
+                if let Err(err) = stop_working() {
+                    handle_error(err)
+                }
             }
             "4" => {
                 write_demo_records()
@@ -42,37 +48,39 @@ fn main() {
 }
 
 fn print_records() {
-    println!("print records");
+    trace!("print_records()");
     if let Err(err) = tyr::print_records() {
         handle_error(err)
     }
 }
 
-fn start_working() -> Result<(), TyrError>{
-    println!("start working");
+fn start_working() -> Result<(), TyrError> {
+    trace!("start_working()");
 
-    let latest = tyr::get_latest_record()?;
-    match latest {
-        Some(r) => {
-            let time = Utc::now();
+    let time = Utc::now();
+    match tyr::get_latest_record()? {
+        Some(_) => {
             tyr::stop_progress(time);
-        },
-        _ => ()
+        }
+        None => ()
     }
-
-    // TODO
-
-
+    tyr::start_progress(time)?;
     Ok(())
 }
 
-fn stop_working() {
-    println!("stop working");
-    //TODO
+fn stop_working() -> Result<(), TyrError> {
+    trace!("stop_working()");
+
+    let time = Utc::now();
+    let result = tyr::stop_progress(time)?;
+    if result == false {
+        println!("You are not currently working on anything.")
+    }
+    Ok(())
 }
 
 fn write_demo_records() {
-    println!("write demo records");
+    trace!("write_demo_records()");
     if let Err(err) = tyr::write_demo_records() {
         handle_error(err);
     }
