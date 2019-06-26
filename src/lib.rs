@@ -13,8 +13,6 @@ use std::io::ErrorKind;
 use chrono::prelude::*;
 use config::ConfigError;
 
-use ::TyrError::IoError;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
     title: String,
@@ -50,8 +48,23 @@ impl From<csv::Error> for TyrError {
 
 fn read_records() -> Result<Vec<Record>, TyrError> {
     trace!("read_records()");
-    let path = get_path().unwrap();
-    let file_buffer = File::open(path)?;
+    let path = get_path()?;
+
+    trace!("Open file: {}", path);
+    let file_buffer = File::open(path);
+
+    let file_buffer = match file_buffer {
+        Ok(f) => f,
+        Err(ref e) if e.kind() == ErrorKind::NotFound {} => {
+            debug!("file not found, return empty vec");
+            return Ok(Vec::new());
+        }
+        Err(e) => {
+            debug!("Error while opening file.");
+            return Err(TyrError::IoError(e));
+        }
+    };
+
     let mut rd = csv::Reader::from_reader(file_buffer);
 
     let mut result = Vec::new();
@@ -65,7 +78,7 @@ fn read_records() -> Result<Vec<Record>, TyrError> {
 
 fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
     trace!("write_records({:?})", records);
-    let path = get_path().unwrap();
+    let path = get_path()?;
     let file_buffer = File::create(&path)?;
     let mut wtr = csv::Writer::from_writer(file_buffer);
     for record in records {
@@ -77,14 +90,7 @@ fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
 
 fn append_record(record: Record) -> Result<(), TyrError> {
     trace!("append_records({:?})", record);
-    let records = read_records();
-    let mut records = match records {
-        Ok(r) => r,
-        Err(my_error) => match my_error {
-            IoError(ref e) if e.kind() == ErrorKind::NotFound => Vec::new(),
-            _ => return Err(my_error)
-        }
-    };
+    let mut records = read_records()?;
     records.push(record);
     write_records(records)?;
     Ok(())
@@ -143,8 +149,8 @@ pub fn get_latest_record() -> Option<Record> {
     trace!("get_latest_record()");
     let records = read_records();
     match records {
-        Ok(mut records) => {records.pop()},
-        Err(_) => {None},
+        Ok(mut records) => records.pop(),
+        Err(_) => None,
     }
 }
 
@@ -189,7 +195,7 @@ pub fn stop_progress(ref stop_time: DateTime<Utc>) -> Result<bool, TyrError> {
 fn get_path() -> Result<String, ConfigError> {
     trace!("get_path()");
     let mut settings = config::Config::default();
-    settings.merge(config::File::with_name("Settings")).unwrap();
+    settings.merge(config::File::with_name("Settings"))?;
     settings.get("path")
 }
 
