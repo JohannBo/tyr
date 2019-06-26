@@ -7,6 +7,7 @@ extern crate tyr;
 use std::io;
 use std::string::String;
 
+use chrono::prelude::*;
 use chrono::Utc;
 
 use tyr::TyrError;
@@ -23,7 +24,7 @@ fn main() {
         match command.as_ref() {
             "q" => break,
             "1" => {
-                print_records()
+                print_times()
             }
             "2" => {
                 if let Err(err) = start_working() {
@@ -35,7 +36,10 @@ fn main() {
                     handle_error(err)
                 }
             }
-            "4" => {
+            "8" => {
+                print_records()
+            }
+            "9" => {
                 write_demo_records()
             }
             "h" => {
@@ -52,8 +56,14 @@ fn read_input() -> String {
     input.trim().to_string()
 }
 
+fn print_times() {
+    trace!("print_times()");
+    if let Err(err) = tyr::print_times() {
+        handle_error(err)
+    }
+}
+
 fn print_records() {
-    trace!("print_records()");
     if let Err(err) = tyr::print_records() {
         handle_error(err)
     }
@@ -62,7 +72,7 @@ fn print_records() {
 fn start_working() -> Result<(), TyrError> {
     trace!("start_working()");
 
-    let time = Utc::now();
+    let time = Utc::now()/*.with_second(0).unwrap()*/.with_nanosecond(0).unwrap();
     println!("What are you working on?");
     let title = read_input();
     tyr::start_progress(time, title)?;
@@ -72,7 +82,7 @@ fn start_working() -> Result<(), TyrError> {
 fn stop_working() -> Result<(), TyrError> {
     trace!("stop_working()");
 
-    let time = Utc::now();
+    let time = Utc::now()/*.with_second(0).unwrap()*/.with_nanosecond(0).unwrap();
     let result = tyr::stop_progress(time)?;
     if result == false {
         println!("You are not currently working on anything.")
@@ -91,10 +101,11 @@ fn print_help() {
     println!("commands:");
     println!("h: print this message");
     println!("q: exit");
-    println!("1: print");
+    println!("1: print times");
     println!("2: start working");
     println!("3: stop working");
-    println!("4: write demo records");
+    println!("8: print raw records");
+    println!("9: write demo records");
 }
 
 

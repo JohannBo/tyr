@@ -96,6 +96,29 @@ fn append_record(record: Record) -> Result<(), TyrError> {
     Ok(())
 }
 
+pub fn print_times() -> Result<(), TyrError> {
+    trace!("print_times()");
+
+    let records = read_records();
+    let records = records?;
+    let mut entries = vec![];
+
+    //TODO use map instead of vec
+    for record in records {
+        let time = Utc::now()/*.with_second(0).unwrap()*/.with_nanosecond(0).unwrap();
+        let duration = record.stop.unwrap_or(time) - record.start;
+        let mut entry = vec![(record.title, duration)];
+        entries.append(&mut entry);
+    }
+
+
+    for entry in entries {
+        println!("{:?}", entry);
+    }
+
+    Ok(())
+}
+
 pub fn print_records() -> Result<(), TyrError> {
     trace!("print_records()");
     let records = read_records();
