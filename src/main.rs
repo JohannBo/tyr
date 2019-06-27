@@ -23,32 +23,35 @@ fn main() {
         let command = read_input();
 
         match command.as_ref() {
-            "q" => break,
-            "1" => {
+            "q" | "quit" | "exit" => {
+                println!("Bye!");
+                break;
+            }
+            "l" | "list" => {
                 print_times()
             }
-            "2" => {
+            "s" | "start" => {
                 if let Err(err) = start_working() {
                     handle_error(err)
                 }
             }
-            "3" => {
+            "t" | "stop" => {
                 if let Err(err) = stop_working() {
                     handle_error(err)
                 }
             }
-            "4" => {
+            "p" | "pause" => {
                 if let Err(err) = pause_working() {
                     handle_error(err)
                 }
             }
-            "8" => {
+            "raw" => {
                 print_records()
             }
-            "9" => {
+            "demo" => {
                 write_demo_records()
             }
-            "h" => {
+            "h" | "help" => {
                 print_help()
             }
             _ => println!("invalid input."),
@@ -58,6 +61,7 @@ fn main() {
 
 fn read_input() -> String {
     trace!("read_input()");
+
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Failed to read line!");
     input.trim().to_string()
@@ -65,6 +69,7 @@ fn read_input() -> String {
 
 fn read_time_with_offset() -> DateTime<Utc> {
     trace!("read_time_with_offset()");
+
     loop {
         let command = read_input();
         let minutes;
@@ -86,12 +91,15 @@ fn read_time_with_offset() -> DateTime<Utc> {
 
 fn print_times() {
     trace!("print_times()");
+
     if let Err(err) = tyr::print_times() {
         handle_error(err)
     }
 }
 
 fn print_records() {
+    trace!("print_records()");
+
     if let Err(err) = tyr::print_records() {
         handle_error(err)
     }
@@ -102,7 +110,8 @@ fn start_working() -> Result<(), TyrError> {
 
     println!("What are you working on?");
     let title = read_input();
-    println!("When did you start working? (<empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
+    println!("When did you start working?");
+    println!("Example: <empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
     let time = read_time_with_offset();
 
     tyr::start_progress(time, title)?;
@@ -112,7 +121,8 @@ fn start_working() -> Result<(), TyrError> {
 fn stop_working() -> Result<(), TyrError> {
     trace!("stop_working()");
 
-    println!("When did you stop working? (<empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
+    println!("When did you stop working?");
+    println!("Example: <empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
     let time = read_time_with_offset();
     let result = tyr::stop_progress(time)?;
     if result == false {
@@ -123,29 +133,37 @@ fn stop_working() -> Result<(), TyrError> {
 
 fn pause_working() -> Result<(), TyrError> {
     trace!("pause_working()");
+
+    println!("not yet implemented!");
     //TODO
     Ok(())
 }
 
 fn write_demo_records() {
     trace!("write_demo_records()");
+
     if let Err(err) = tyr::write_demo_records() {
         handle_error(err);
     }
 }
 
 fn print_help() {
+    trace!("print_help()");
+
     println!("commands:");
-    println!("h: print this message");
-    println!("q: exit");
-    println!("1: print times");
-    println!("2: start working");
-    println!("3: stop working");
-    println!("8: print raw records");
-    println!("9: write demo records");
+    println!("h / help: print this message");
+    println!("q / quit / exit: exit");
+    println!("l / list: print times");
+    println!("s / start: start working");
+    println!("t / stop: stop working");
+    println!("p / pause: pause then continue");
+    println!("raw: print raw records");
+    println!("demo: write demo records");
 }
 
 
 fn handle_error(error: TyrError) {
+    trace!("handle_error()");
+
     println!("Error: {:?}", error);
 }

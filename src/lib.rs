@@ -49,6 +49,7 @@ impl From<csv::Error> for TyrError {
 
 fn read_records() -> Result<Vec<Record>, TyrError> {
     trace!("read_records()");
+
     let path = get_path()?;
 
     trace!("Open file: {}", path);
@@ -79,6 +80,7 @@ fn read_records() -> Result<Vec<Record>, TyrError> {
 
 fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
     trace!("write_records({:?})", records);
+
     let path = get_path()?;
     let file_buffer = File::create(&path)?;
     let mut wtr = csv::Writer::from_writer(file_buffer);
@@ -91,6 +93,7 @@ fn write_records(records: Vec<Record>) -> Result<(), TyrError> {
 
 fn append_record(record: Record) -> Result<(), TyrError> {
     trace!("append_records({:?})", record);
+
     let mut records = read_records()?;
     records.push(record);
     write_records(records)?;
@@ -125,6 +128,7 @@ pub fn print_times() -> Result<(), TyrError> {
 
 pub fn print_records() -> Result<(), TyrError> {
     trace!("print_records()");
+
     let records = read_records();
     let records = records?;
     for record in records {
@@ -135,12 +139,6 @@ pub fn print_records() -> Result<(), TyrError> {
 
 pub fn write_demo_records() -> Result<(), TyrError> {
     trace!("write_demo_records()");
-
-//    let start = Utc.ymd(2018, 4, 27).and_hms(10, 50, 0);
-//    let stop = Utc::now();
-//    let stop = stop.with_second(0).unwrap();
-//    let stop = stop.with_nanosecond(0).unwrap();
-
 
     let start = Utc.ymd(2018, 4, 27).and_hms(10, 0, 0);
     let stop = Utc.ymd(2018, 4, 27).and_hms(11, 0, 0);
