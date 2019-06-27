@@ -6,6 +6,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
+use std::collections::HashMap;
 use std::fs::File;
 use std::io;
 use std::io::ErrorKind;
@@ -101,21 +102,24 @@ pub fn print_times() -> Result<(), TyrError> {
 
     let records = read_records();
     let records = records?;
-    let mut entries = vec![];
 
-    //TODO use map instead of vec
+    let mut entries = HashMap::new();
     for record in records {
-        let time = Utc::now()/*.with_second(0).unwrap()*/.with_nanosecond(0).unwrap();
-        let duration = record.stop.unwrap_or(time) - record.start;
-        let mut entry = vec![(record.title, duration)];
-        entries.append(&mut entry);
+        let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
+        let mut duration = record.stop.unwrap_or(time) - record.start;
+        if entries.contains_key(&record.title) {
+            debug!("entry with this title exists, sum up duration.");
+            duration = *entries.get_mut(&record.title).unwrap() + duration;
+        }
+        entries.insert(record.title, duration);
     }
 
-
-    for entry in entries {
-        println!("{:?}", entry);
+    for (title, duration) in entries {
+        println!("Ticket: \"{}\" Time: {}:{} ({})", title,
+                 duration.num_hours(),
+                 duration.num_minutes() - duration.num_hours() * 60,
+                 duration.num_minutes() as f64 / 60.0);
     }
-
     Ok(())
 }
 

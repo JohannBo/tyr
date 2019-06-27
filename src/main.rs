@@ -72,7 +72,7 @@ fn print_records() {
 fn start_working() -> Result<(), TyrError> {
     trace!("start_working()");
 
-    let time = Utc::now()/*.with_second(0).unwrap()*/.with_nanosecond(0).unwrap();
+    let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
     println!("What are you working on?");
     let title = read_input();
     tyr::start_progress(time, title)?;
@@ -82,7 +82,7 @@ fn start_working() -> Result<(), TyrError> {
 fn stop_working() -> Result<(), TyrError> {
     trace!("stop_working()");
 
-    let time = Utc::now()/*.with_second(0).unwrap()*/.with_nanosecond(0).unwrap();
+    let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
     let result = tyr::stop_progress(time)?;
     if result == false {
         println!("You are not currently working on anything.")
