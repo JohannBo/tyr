@@ -102,7 +102,7 @@ fn start_working() -> Result<(), TyrError> {
 
     println!("What are you working on?");
     let title = read_input();
-    println!("When did you start? (<empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
+    println!("When did you start working? (<empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
     let time = read_time_with_offset();
 
     tyr::start_progress(time, title)?;
@@ -112,7 +112,8 @@ fn start_working() -> Result<(), TyrError> {
 fn stop_working() -> Result<(), TyrError> {
     trace!("stop_working()");
 
-    let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
+    println!("When did you stop working? (<empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
+    let time = read_time_with_offset();
     let result = tyr::stop_progress(time)?;
     if result == false {
         println!("You are not currently working on anything.")
