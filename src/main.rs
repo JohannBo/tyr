@@ -7,6 +7,7 @@ extern crate tyr;
 use std::io;
 use std::string::String;
 
+use chrono::Duration;
 use chrono::prelude::*;
 use chrono::Utc;
 
@@ -36,6 +37,11 @@ fn main() {
                     handle_error(err)
                 }
             }
+            "4" => {
+                if let Err(err) = pause_working() {
+                    handle_error(err)
+                }
+            }
             "8" => {
                 print_records()
             }
@@ -51,9 +57,31 @@ fn main() {
 }
 
 fn read_input() -> String {
+    trace!("read_input()");
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Failed to read line!");
     input.trim().to_string()
+}
+
+fn read_time_with_offset() -> DateTime<Utc> {
+    trace!("read_time_with_offset()");
+    loop {
+        let command = read_input();
+        let minutes;
+
+        if command.is_empty() || command == "now".to_string() {
+            minutes = 0;
+        } else {
+            minutes = match command.parse::<i64>() {
+                Ok(i) => i,
+                Err(_) => {
+                    println!("Invalid input. \"{}\" cannot be converted to integer.", command);
+                    continue;
+                }
+            };
+        }
+        return Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap() - Duration::minutes(minutes);
+    }
 }
 
 fn print_times() {
@@ -72,9 +100,11 @@ fn print_records() {
 fn start_working() -> Result<(), TyrError> {
     trace!("start_working()");
 
-    let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
     println!("What are you working on?");
     let title = read_input();
+    println!("When did you start? (<empty>/\"now\"/'0' -> now; 5 -> five minutes ago; -5 -> in five minutes");
+    let time = read_time_with_offset();
+
     tyr::start_progress(time, title)?;
     Ok(())
 }
@@ -87,6 +117,12 @@ fn stop_working() -> Result<(), TyrError> {
     if result == false {
         println!("You are not currently working on anything.")
     }
+    Ok(())
+}
+
+fn pause_working() -> Result<(), TyrError> {
+    trace!("pause_working()");
+    //TODO
     Ok(())
 }
 
