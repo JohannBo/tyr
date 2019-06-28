@@ -136,7 +136,24 @@ fn pause_working() -> Result<(), TyrError> {
 
     println!("not yet implemented!");
     //TODO
-    Ok(())
+
+    println!("How long was your pause? (in minutes)");
+    let minutes;
+    loop {
+        let command = read_input();
+        minutes = match command.parse::<i64>() {
+            Ok(i) => i,
+            Err(_) => {
+                println!("Invalid input. \"{}\" cannot be converted to integer.", command);
+                continue;
+            }
+        };
+        break;
+    }
+    let stop_time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
+    let start_time = stop_time - Duration::minutes(minutes);
+
+    tyr::pause_progress(start_time, stop_time)
 }
 
 fn write_demo_records() {
