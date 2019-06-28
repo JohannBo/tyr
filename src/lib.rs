@@ -5,6 +5,7 @@ extern crate csv;
 extern crate log;
 #[macro_use]
 extern crate serde_derive;
+extern crate dirs;
 
 use std::collections::HashMap;
 use std::fs::File;
@@ -219,8 +220,16 @@ pub fn stop_progress(ref stop_time: DateTime<Utc>) -> Result<bool, TyrError> {
 
 fn get_path() -> Result<String, ConfigError> {
     trace!("get_path()");
+
+    //TODO: Handle config more generic. Write config file if it doesn't exist.
+
     let mut settings = config::Config::default();
-    settings.merge(config::File::with_name("Settings"))?;
+
+    let mut config_dir =  dirs::config_dir().unwrap();
+    config_dir.push("tyr_config");
+    debug!("Open config file: {:?}", config_dir);
+
+    settings.merge(config::File::from(config_dir))?;
     settings.get("path")
 }
 
