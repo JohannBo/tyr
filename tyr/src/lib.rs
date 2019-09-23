@@ -103,7 +103,7 @@ fn append_record(record: Record) -> Result<(), TyrError> {
 }
 
 pub fn print_times() -> Result<(), TyrError> {
-    trace!("print_times()");
+    trace!("print_times()\n");
 
     let records = read_records()?;
 
@@ -112,7 +112,7 @@ pub fn print_times() -> Result<(), TyrError> {
         let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
         let mut duration = record.stop.unwrap_or(time) - record.start;
         if record.stop.is_none() {
-            println!("Currently working on: \"{}\"", record.title);
+            println!("Currently working on: \"{}\"\n", record.title);
         }
         if entries.contains_key(&record.title) {
             debug!("entry with this title exists, sum up duration.");
@@ -122,11 +122,12 @@ pub fn print_times() -> Result<(), TyrError> {
     }
 
     for (title, duration) in entries {
-        println!("Ticket: \"{}\" Time: {:02}:{:02} ({})", title,
+        println!("{:02}:{:02} {}",
                  duration.num_hours(),
-                 duration.num_minutes() - duration.num_hours() * 60,
-                 duration.num_minutes() as f64 / 60.0);
+                 duration.num_minultes() - duration.num_hours() * 60,
+                 title, );
     }
+    println!();
     Ok(())
 }
 

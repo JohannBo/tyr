@@ -134,9 +134,6 @@ fn stop_working() -> Result<(), TyrError> {
 fn pause_working() -> Result<(), TyrError> {
     trace!("pause_working()");
 
-    println!("not yet implemented!");
-    //TODO
-
     println!("How long was your pause? (in minutes)");
     let minutes;
     loop {
