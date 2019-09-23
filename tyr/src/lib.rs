@@ -124,7 +124,7 @@ pub fn print_times() -> Result<(), TyrError> {
     for (title, duration) in entries {
         println!("{:02}:{:02} {}",
                  duration.num_hours(),
-                 duration.num_minultes() - duration.num_hours() * 60,
+                 duration.num_minutes() - duration.num_hours() * 60,
                  title, );
     }
     println!();
