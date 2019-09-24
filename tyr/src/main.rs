@@ -2,7 +2,7 @@ extern crate chrono;
 extern crate env_logger;
 #[macro_use]
 extern crate log;
-extern crate tyr;
+extern crate tyr_lib as tyr;
 
 use std::io;
 use std::string::String;
