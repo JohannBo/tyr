@@ -7,7 +7,7 @@ extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io;
 use std::io::ErrorKind;
@@ -109,7 +109,7 @@ pub fn print_times() -> Result<(), TyrError> {
 
     let records = read_records()?;
 
-    let mut entries = HashMap::new();
+    let mut entries = BTreeMap::new();
     let mut total_duration = Duration::zero();
     for record in records {
         let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
