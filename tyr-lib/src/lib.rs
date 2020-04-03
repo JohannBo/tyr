@@ -11,7 +11,9 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io;
 use std::io::ErrorKind;
+use std::ops::Add;
 
+use chrono::Duration;
 use chrono::prelude::*;
 use config::ConfigError;
 
@@ -108,9 +110,11 @@ pub fn print_times() -> Result<(), TyrError> {
     let records = read_records()?;
 
     let mut entries = HashMap::new();
+    let mut total_duration = Duration::zero();
     for record in records {
         let time = Utc::now().with_second(0).unwrap().with_nanosecond(0).unwrap();
         let mut duration = record.stop.unwrap_or(time) - record.start;
+        total_duration = total_duration.add(duration);
         if record.stop.is_none() {
             println!("Currently working on: \"{}\"\n", record.title);
         }
@@ -127,6 +131,11 @@ pub fn print_times() -> Result<(), TyrError> {
                  duration.num_minutes() - duration.num_hours() * 60,
                  title, );
     }
+    println!();
+
+    println!("Total: {:02}:{:02}", total_duration.num_hours(),
+             total_duration.num_minutes() - total_duration.num_hours() * 60);
+
     println!();
     Ok(())
 }
